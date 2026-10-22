@@ -1,0 +1,59 @@
+name: sbmmarine
+description: "SBM MARINE & ENGINEERING PET. LTD."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.5.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Flutter Icons
+  cupertino_icons: ^1.0.8
+
+  # Image & Date
+  image_picker: ^1.1.2
+  image: ^4.5.4
+  intl: ^0.20.2
+
+  # Country / Phone
+  intl_phone_field: ^3.1.0
+  country_picker: ^2.0.26
+  country_state_city: ^0.1.6
+
+  # Web
+  universal_html: ^2.2.4
+
+  # Face Detection & Recognition
+  google_mlkit_face_detection: ^0.13.1
+  tflite_flutter: ^0.12.1
+
+  # Firebase
+  firebase_core: ^4.13.0
+  cloud_firestore: ^6.8.0
+  firebase_storage: ^13.4.5
+
+  # Camera
+  camera: ^0.11.2+1
+
+  # QR Code
+  qr_flutter: ^4.1.0
+
+  # PDF & Printing
+  pdf: ^3.11.0
+  printing: ^5.13.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/models/

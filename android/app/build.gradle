@@ -1,0 +1,52 @@
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
+    id "com.google.gms.google-services"
+}
+
+android {
+    namespace = "com.example.sbmmarine"
+
+    // আমরা ৩৫ ই ব্যবহার করবো কারণ আপনার সিস্টেমে এটি এখন আছে
+    compileSdk = 35
+    ndkVersion = flutter.ndkVersion
+
+    compileOptions {
+        // জাভা এরর কাটাতে এখানে অবশ্যই ১৭ (Java 17) ব্যবহার করা উচিত
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        // জাভা ১৭ এর সাথে সামঞ্জস্য রাখার জন্য এটি জরুরি
+        jvmTarget = "17"
+    }
+
+    defaultConfig {
+        applicationId = "com.example.sbmmarine"
+        minSdk = 23
+        targetSdk = 35
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
+    }
+
+    buildTypes {
+        release {
+            signingConfig = signingConfigs.debug
+        }
+    }
+}
+
+flutter {
+    source = "../.."
+}
+
+// এই অংশটি আপনার সেই 'lifecycle' এররটি চিরতরে বন্ধ করবে
+configurations.all {
+    resolutionStrategy {
+        force 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.0'
+        force 'androidx.lifecycle:lifecycle-runtime-ktx:2.8.0'
+        force 'androidx.lifecycle:lifecycle-viewmodel:2.8.0'
+    }
+}
