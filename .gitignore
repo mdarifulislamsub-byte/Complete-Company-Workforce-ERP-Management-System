@@ -43,3 +43,29 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Flutter and Dart
+.dart_tool/
+.packages
+.pub/
+.pub-cache/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# Android generated files
+android/.gradle/
+android/local.properties
+android/**/build/
+android/app/.cxx/
+android/app/.externalNativeBuild/
+
+# iOS generated files
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/ephemeral/
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
