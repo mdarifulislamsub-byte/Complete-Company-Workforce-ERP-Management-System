@@ -16839,6 +16839,244 @@ class _WebApplicationPageState extends State<WebApplicationPage> {
     );
   }
 }
+class WebAllowanceDeductionPage extends StatefulWidget {
+  final String adminId;
+  const WebAllowanceDeductionPage({super.key, required this.adminId});
+
+  @override
+  State<WebAllowanceDeductionPage> createState() => _WebAllowanceDeductionPageState();
+}
+
+class _WebAllowanceDeductionPageState extends State<WebAllowanceDeductionPage> {
+  late TextEditingController _staffIdController;
+  String selectedYear = "2026";
+  String selectedMonth = "September";
+  bool isLoading = false;
+
+  // Dynamic employee data variables
+  String employeeName = "";
+  String companyName = "";
+  String departmentName = "";
+  int attendanceDays = 31;
+
+  @override
+  void initState() {
+    super.initState();
+    _staffIdController = TextEditingController(text: widget.adminId);
+    _fetchEmployeeData(widget.adminId);
+  }
+
+  // Firestore theke emplyee data dynamic-vabe ana
+  Future<void> _fetchEmployeeData(String staffId) async {
+    setState(() => isLoading = true);
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('employees')
+          .doc(staffId)
+          .get();
+
+      if (doc.exists) {
+        final data = doc.data() ?? {};
+        setState(() {
+          employeeName = data['name']?.toString() ?? 'N/A';
+          companyName = data['companyName']?.toString() ?? data['company']?.toString() ?? 'Habiganj Agro Limited - HO-Dist';
+          departmentName = data['department']?.toString() ?? 'Dist-Store-Shipping-Local Distribution-Chunarughat';
+        });
+      } else {
+        setState(() {
+          employeeName = "Employee Not Found";
+          companyName = "Habiganj Agro Limited - HO-Dist";
+          departmentName = "N/A";
+        });
+      }
+    } catch (e) {
+      print("Error fetching employee: $e");
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8F9FE),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Top Filter Bar (Screenshot er moto)
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 8)],
+              ),
+              child: Row(
+                children: [
+                  const Text("StaffID", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                  const SizedBox(width: 12),
+                  SizedBox(
+                    width: 160,
+                    height: 40,
+                    child: TextField(
+                      controller: _staffIdController,
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(4), borderSide: BorderSide(color: Colors.grey.shade400)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 24),
+                  const Text("Year*", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.red)),
+                  const SizedBox(width: 12),
+                  SizedBox(
+                    width: 130,
+                    height: 40,
+                    child: DropdownButtonFormField<String>(
+                      value: selectedYear,
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(4), borderSide: BorderSide(color: Colors.grey.shade400)),
+                      ),
+                      items: ["2024", "2025", "2026", "2027"].map((y) => DropdownMenuItem(value: y, child: Text(y))).toList(),
+                      onChanged: (val) => setState(() => selectedYear = val!),
+                    ),
+                  ),
+                  const SizedBox(width: 24),
+                  const Text("Month*", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.red)),
+                  const SizedBox(width: 12),
+                  SizedBox(
+                    width: 140,
+                    height: 40,
+                    child: DropdownButtonFormField<String>(
+                      value: selectedMonth,
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(4), borderSide: BorderSide(color: Colors.grey.shade400)),
+                      ),
+                      items: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+                          .map((m) => DropdownMenuItem(value: m, child: Text(m)))
+                          .toList(),
+                      onChanged: (val) => setState(() => selectedMonth = val!),
+                    ),
+                  ),
+                  const Spacer(),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF00897B), // Teal Show Button
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                    ),
+                    onPressed: () {
+                      _fetchEmployeeData(_staffIdController.text.trim());
+                    },
+                    child: const Text("Show", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 25),
+
+            // Main Report Box Container (Exact Screenshot Layout)
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.grey.shade300),
+                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 6)],
+              ),
+              child: isLoading
+                  ? const Center(child: Padding(padding: EdgeInsets.all(40), child: CircularProgressIndicator()))
+                  : Column(
+                children: [
+                  // Company Title Header
+                  Text(companyName, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87)),
+                  const SizedBox(height: 4),
+                  Text("Allowance & Deduction for the month of $selectedMonth-$selectedYear", style: const TextStyle(fontSize: 13, color: Colors.black54)),
+                  const SizedBox(height: 4),
+                  Text("Department : $departmentName", style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                  const SizedBox(height: 15),
+
+                  // Staff ID, Name & Attendance Header Row inside Table
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey.shade400),
+                      color: Colors.grey.shade50,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text("Staff ID: ${_staffIdController.text}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                        Text("Name: $employeeName", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                        Text("Attendance: $attendanceDays", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                      ],
+                    ),
+                  ),
+
+                  // Allowance & Deduction Table
+                  Table(
+                    border: TableBorder.all(color: Colors.grey.shade400),
+                    columnWidths: const {
+                      0: FlexColumnWidth(2.5),
+                      1: FlexColumnWidth(1),
+                      2: FlexColumnWidth(2.5),
+                      3: FlexColumnWidth(1),
+                    },
+                    children: [
+                      // Table Headers
+                      TableRow(
+                        decoration: BoxDecoration(color: Colors.grey.shade100),
+                        children: const [
+                          Padding(padding: EdgeInsets.all(10), child: Text("Allowance", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13))),
+                          Padding(padding: EdgeInsets.all(10), child: Text("Amount", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13))),
+                          Padding(padding: EdgeInsets.all(10), child: Text("Deduction", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13))),
+                          Padding(padding: EdgeInsets.all(10), child: Text("Amount", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13))),
+                        ],
+                      ),
+                      // Row 1
+                      const TableRow(
+                        children: [
+                          Padding(padding: EdgeInsets.all(10), child: Text("Employee Allowance", style: TextStyle(fontSize: 13))),
+                          Padding(padding: EdgeInsets.all(10), child: Text("800", style: TextStyle(fontSize: 13))),
+                          Padding(padding: EdgeInsets.all(10), child: Text("PF", style: TextStyle(fontSize: 13))),
+                          Padding(padding: EdgeInsets.all(10), child: Text("903", style: TextStyle(fontSize: 13))),
+                        ],
+                      ),
+                      // Row 2
+                      const TableRow(
+                        children: [
+                          Padding(padding: EdgeInsets.all(10), child: Text("Offday Allowance", style: TextStyle(fontSize: 13))),
+                          Padding(padding: EdgeInsets.all(10), child: Text("1400", style: TextStyle(fontSize: 13))),
+                          Padding(padding: EdgeInsets.all(10), child: Text("Mobile Deduction", style: TextStyle(fontSize: 13))),
+                          Padding(padding: EdgeInsets.all(10), child: Text("653", style: TextStyle(fontSize: 13))),
+                        ],
+                      ),
+                      // Totals Row
+                      TableRow(
+                        decoration: BoxDecoration(color: Colors.grey.shade50),
+                        children: const [
+                          Padding(padding: EdgeInsets.all(10), child: Text("Total Allowance", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13))),
+                          Padding(padding: EdgeInsets.all(10), child: Text("2200", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13))),
+                          Padding(padding: EdgeInsets.all(10), child: Text("Total Deduction", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13))),
+                          Padding(padding: EdgeInsets.all(10), child: Text("1556", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13))),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 class WebAddEmployeePage extends StatefulWidget {
   const WebAddEmployeePage({super.key});
@@ -17286,12 +17524,30 @@ class WebHistoryPage extends StatelessWidget {
                   offset: const Offset(0, 45),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   onSelected: (value) {
-                    if (value == 'individual') { ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Individual Attendance page will be connected next."))); }
-                    if (value == 'allReport') { Navigator.push(context, MaterialPageRoute(builder: (context) => WebAllAttendanceReportPage(adminId: adminId))); }
+                    if (value == 'individual') {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Individual Attendance page will be connected next.")));
+                    }
+                    if (value == 'allReport') {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => WebAllAttendanceReportPage(adminId: adminId)));
+                    }
+                    if (value == 'allowanceDeduction') {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => WebAllowanceDeductionPage(adminId: adminId)));
+                    }
                   },
-                  itemBuilder: (context) => const [
-                    PopupMenuItem<String>(value: 'individual', child: Row(children: [Icon(Icons.person_search), SizedBox(width: 10), Text("Individual Attendance")])),
-                    PopupMenuItem<String>(value: 'allReport', child: Row(children: [Icon(Icons.summarize), SizedBox(width: 10), Text("All Attendance Report")])),
+                  itemBuilder: (context) => [
+                    const PopupMenuItem<String>(
+                        value: 'individual',
+                        child: Row(children: [Icon(Icons.person_search), SizedBox(width: 10), Text("Individual Attendance")])
+                    ),
+                    const PopupMenuItem<String>(
+                        value: 'allReport',
+                        child: Row(children: [Icon(Icons.summarize), SizedBox(width: 10), Text("All Attendance Report")])
+                    ),
+                    // 👇 নতুন Allowance & Deduction অপশনটি এখানে যোগ করা হলো
+                    const PopupMenuItem<String>(
+                        value: 'allowanceDeduction',
+                        child: Row(children: [Icon(Icons.monetization_on), SizedBox(width: 10), Text("Allowance & Deduction")])
+                    ),
                   ],
                   child: const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 10, vertical: 12),
